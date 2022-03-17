@@ -20,32 +20,41 @@ public class CategoryService {
 	
 	public CategoryService(EntityManager entityManager) {
 		this.entityManager = entityManager;
+		this.categoryDAO = new CategoryDAO(entityManager);
 	}
 	
-	public void create(Category category) {
-		if (category == null) {
-			this.LOG.error("o produto informado está nulo");
-			throw new RuntimeException("O produto está nulo");
+//	public void create(Category category) {
+//		if (category == null) {
+//			this.LOG.error("o produto informado está nulo");
+//			throw new RuntimeException("O produto está nulo");
+//		}
+//		try {
+//			getBeginTransaction();
+//			this.categoryDAO.create(category);
+//			
+//			commitAndCloseTransaction();
+//		} catch (Exception e) {
+//			this.LOG.error("Erro ao criar um produto, causado por: " + e.getMessage());
+//			throw new RuntimeException(e);
+//		}
+//
+//	}
+//
+//	private void getBeginTransaction() {
+//		entityManager.getTransaction().begin();
+//	}
+//
+//	private void commitAndCloseTransaction() {
+//		entityManager.getTransaction().commit();
+//		entityManager.close();
+//	}
+	
+	public Category findByName(String name) {
+		if (name == null || name.isEmpty()) {
+			this.LOG.error("O Nome não pode sr nulo");
+			throw new RuntimeException("The name is null.");
 		}
-		try {
-			getBeginTransaction();
-			this.categoryDAO.create(category);
-			
-			commitAndCloseTransaction();
-		} catch (Exception e) {
-			this.LOG.error("Erro ao criar um produto, causado por: " + e.getMessage());
-			throw new RuntimeException(e);
-		}
-
-	}
-
-	private void getBeginTransaction() {
-		entityManager.getTransaction().begin();
-	}
-
-	private void commitAndCloseTransaction() {
-		entityManager.getTransaction().commit();
-		entityManager.close();
+		return this.categoryDAO.findByName(name.toLowerCase());
 	}
 
 }

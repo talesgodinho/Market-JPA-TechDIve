@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import market.model.dao.ProductDAO;
+import market.model.persistence.Category;
 import market.model.persistence.Product;
 
 public class ProductService {
@@ -16,14 +17,17 @@ public class ProductService {
 	private EntityManager entityManager;
 
 	private ProductDAO productDAO;
+	
+	private CategoryService categoryService;
 
 	public ProductService(EntityManager entityManager) {
 		this.entityManager = entityManager;
 		this.productDAO = new ProductDAO(entityManager);
+		this.categoryService = new CategoryService(entityManager);
 	}
 	
 	private void getBeginTransaction() {
-		this.LOG.info("Abrindo transação");
+		this.LOG.info("Abrindo transação...");
 		entityManager.getTransaction().begin();
 	}
 
@@ -34,11 +38,20 @@ public class ProductService {
 	}
 
 	public void create(Product product) {
-		this.LOG.info("Preparando para a criação de um produto");
+		this.LOG.info("Preparando para a criação de um produto...");
 		if (product == null) {
 			this.LOG.error("o produto informado está nulo");
 			throw new RuntimeException("The product is null");
 		}
+		String categoryName = product.getCategory().getName();
+		this.LOG.info("Buscando se já existe categoria criada " + categoryName);
+		Category category = this.categoryService.findByName(categoryName);
+		
+		if (product != null) {
+			this.LOG.info("Categoria encontrada no banco");
+			product.setCategory(category);
+		}
+		
 		try {
 			getBeginTransaction();
 			this.productDAO.create(product);
@@ -53,7 +66,7 @@ public class ProductService {
 
 	public void delete(Long id) {
 		
-		this.LOG.info("Preparando para buscar produto.");
+		this.LOG.info("Preparando para buscar produto...");
 		
 		if (id == null) {
 			this.LOG.error("O ID do produto informado está nulo.");
@@ -68,12 +81,10 @@ public class ProductService {
 		
 		this.LOG.info("Produto encontrado com sucesso.");
 		
-		
 		getBeginTransaction();
 		this.productDAO.delete(product);
 		commitAndCloseTransaction();
 		this.LOG.info("Produto deletado com sucesso.");
-		
 	}
 	
 
