@@ -14,7 +14,7 @@ public class Category {
 	private long id;
 	
 	@Column(nullable = false, length = 64)
-	private String name;
+	private String name; 
 	
 	public Category() {
 		
